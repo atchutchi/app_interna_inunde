@@ -4,12 +4,11 @@
 -- ============================================================
 
 -- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ─── TENANTS ────────────────────────────────────────────────
 
 CREATE TABLE tenants (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          TEXT NOT NULL,
   slug          TEXT NOT NULL UNIQUE,
   logo_url      TEXT,
@@ -41,7 +40,7 @@ CREATE INDEX idx_profiles_role ON profiles(role);
 -- ─── PARTNERS ────────────────────────────────────────────────
 
 CREATE TABLE partners (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id       UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   name            TEXT NOT NULL,
   type            TEXT NOT NULL
@@ -65,7 +64,7 @@ CREATE INDEX idx_partners_status ON partners(status);
 -- ─── RIDERS ──────────────────────────────────────────────────
 
 CREATE TABLE riders (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id     UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   profile_id    UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   vehicle_type  TEXT NOT NULL,
@@ -84,7 +83,7 @@ CREATE INDEX idx_riders_status ON riders(status);
 -- ─── DELIVERIES ──────────────────────────────────────────────
 
 CREATE TABLE deliveries (
-  id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id        UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   order_number     TEXT NOT NULL,
   source           TEXT NOT NULL
@@ -128,7 +127,7 @@ ALTER TABLE deliveries ALTER COLUMN order_number SET DEFAULT 'DEL-' || nextval('
 -- ─── CALLS ───────────────────────────────────────────────────
 
 CREATE TABLE calls (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id       UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   operator_id     UUID NOT NULL REFERENCES profiles(id),
   call_datetime   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -153,7 +152,7 @@ CREATE INDEX idx_calls_datetime ON calls(call_datetime DESC);
 -- ─── FINANCIAL ENTRIES ───────────────────────────────────────
 
 CREATE TABLE financial_entries (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id       UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   entry_type      TEXT NOT NULL CHECK (entry_type IN ('income','expense','transfer')),
   category        TEXT NOT NULL,
@@ -185,7 +184,7 @@ CREATE INDEX idx_financial_created ON financial_entries(created_at DESC);
 -- ─── RIDER EXPENSES ──────────────────────────────────────────
 
 CREATE TABLE rider_expenses (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id     UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   rider_id      UUID NOT NULL REFERENCES riders(id) ON DELETE CASCADE,
   expense_type  TEXT NOT NULL CHECK (expense_type IN ('fuel','maintenance','other')),
@@ -206,7 +205,7 @@ CREATE INDEX idx_rider_expenses_status ON rider_expenses(status);
 -- ─── SHAREHOLDER CAPITAL ─────────────────────────────────────
 
 CREATE TABLE shareholder_capital (
-  id                   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id            UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   shareholder_name     TEXT NOT NULL,
   shareholder_role     TEXT,
@@ -231,7 +230,7 @@ CREATE INDEX idx_shareholder_capital_tenant ON shareholder_capital(tenant_id);
 -- ─── DEBTS ───────────────────────────────────────────────────
 
 CREATE TABLE debts (
-  id                   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id            UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   direction            TEXT NOT NULL CHECK (direction IN ('receivable','payable')),
   debtor_creditor_name TEXT NOT NULL,
@@ -256,7 +255,7 @@ CREATE INDEX idx_debts_due_date ON debts(due_date);
 -- ─── DEBT PAYMENTS ───────────────────────────────────────────
 
 CREATE TABLE debt_payments (
-  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   debt_id      UUID NOT NULL REFERENCES debts(id) ON DELETE CASCADE,
   amount_paid  NUMERIC(15,2) NOT NULL CHECK (amount_paid > 0),
   payment_date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -271,7 +270,7 @@ CREATE INDEX idx_debt_payments_debt ON debt_payments(debt_id);
 -- ─── ATTENDANCE ──────────────────────────────────────────────
 
 CREATE TABLE attendance (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id     UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   profile_id    UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   date          DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -290,7 +289,7 @@ CREATE INDEX idx_attendance_date ON attendance(date DESC);
 -- ─── AUDIT LOGS (immutable) ───────────────────────────────────
 
 CREATE TABLE audit_logs (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id       UUID NOT NULL,
   user_id         UUID NOT NULL,
   action          TEXT NOT NULL,
