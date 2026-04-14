@@ -121,7 +121,7 @@ export function Header({ userFullName, userRole, userAvatarUrl, onCommandOpen }:
               <p className="text-xs font-normal text-muted-foreground capitalize">{userRole ?? ""}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/profile")}>
               <User className="mr-2 h-4 w-4" />
               Perfil
             </DropdownMenuItem>
