@@ -2,19 +2,27 @@ import type { Metadata } from "next";
 import { Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCurrency } from "@/lib/utils";
+import { FinanceTabs } from "@/components/finance/FinanceTabs";
+import {
+  getFinanceSummary,
+  getIncomeEntries,
+  getExpenseEntries,
+  getDebts,
+  getShareholderCapital,
+} from "@/lib/queries/finance";
 
 export const metadata: Metadata = { title: "Financeiro" };
 
-const SUMMARY = {
-  totalIncome: 847_500,
-  totalExpenses: 324_200,
-  netBalance: 523_300,
-  pendingApprovals: 3,
-};
+export default async function FinancePage() {
+  const [summary, income, expenses, debts, shareholders] = await Promise.all([
+    getFinanceSummary(),
+    getIncomeEntries(),
+    getExpenseEntries(),
+    getDebts(),
+    getShareholderCapital(),
+  ]);
 
-export default function FinancePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -32,28 +40,24 @@ export default function FinancePage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Entradas (Março)
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Entradas</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <p className="font-heading text-2xl font-bold text-green-600">
-              {formatCurrency(SUMMARY.totalIncome)}
+              {formatCurrency(summary.totalIncome)}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Saídas (Março)
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Saídas</CardTitle>
             <TrendingDown className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
             <p className="font-heading text-2xl font-bold text-red-600">
-              {formatCurrency(SUMMARY.totalExpenses)}
+              {formatCurrency(summary.totalExpenses)}
             </p>
           </CardContent>
         </Card>
@@ -67,7 +71,7 @@ export default function FinancePage() {
           </CardHeader>
           <CardContent>
             <p className="font-heading text-2xl font-bold text-[#4CC88A]">
-              {formatCurrency(SUMMARY.netBalance)}
+              {formatCurrency(summary.netBalance)}
             </p>
           </CardContent>
         </Card>
@@ -81,62 +85,19 @@ export default function FinancePage() {
           </CardHeader>
           <CardContent>
             <p className="font-heading text-2xl font-bold text-yellow-800">
-              {SUMMARY.pendingApprovals}
+              {summary.pendingApprovals}
             </p>
             <p className="text-xs text-yellow-700">registos aguardam aprovação</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="income">
-        <TabsList>
-          <TabsTrigger value="income">Entradas</TabsTrigger>
-          <TabsTrigger value="expenses">Saídas</TabsTrigger>
-          <TabsTrigger value="debts">Dívidas</TabsTrigger>
-          <TabsTrigger value="shareholders">Capital Sócios</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="income" className="mt-4">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Tabela de entradas financeiras — conectar ao Supabase
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="expenses" className="mt-4">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Tabela de saídas financeiras — conectar ao Supabase
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="debts" className="mt-4">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Gestão de dívidas e reembolsos — conectar ao Supabase
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="shareholders" className="mt-4">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Capital dos sócios (Fase 2) — conectar ao Supabase
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <FinanceTabs
+        income={income}
+        expenses={expenses}
+        debts={debts}
+        shareholders={shareholders}
+      />
     </div>
   );
 }
