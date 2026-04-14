@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,18 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatCurrency, getInitials } from "@/lib/utils";
 import { PARTNER_TYPES } from "@/lib/constants";
+import { getPartners } from "@/lib/queries/partners";
 import type { PartnerType, PartnerStatus } from "@/types/app.types";
 
 export const metadata: Metadata = { title: "Parceiros" };
 
-const MOCK_PARTNERS = [
-  { id: "1", name: "Terra e Mar", type: "restaurant" as PartnerType, status: "active" as PartnerStatus, commissionPct: 15, balance: 245_000 },
-  { id: "2", name: "Restaurante Central", type: "restaurant" as PartnerType, status: "active" as PartnerStatus, commissionPct: 15, balance: 180_000 },
-  { id: "3", name: "PME Logística Lda", type: "b2b_delivery" as PartnerType, status: "active" as PartnerStatus, commissionPct: 8, balance: 95_000 },
-  { id: "4", name: "Bissau Events", type: "events" as PartnerType, status: "active" as PartnerStatus, commissionPct: 10, balance: 45_000 },
-];
+export default async function PartnersPage() {
+  const partners = await getPartners();
 
-export default function PartnersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -31,45 +28,55 @@ export default function PartnersPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {MOCK_PARTNERS.map((partner) => (
-          <Card
-            key={partner.id}
-            className="cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all duration-150"
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-[#3B82F6] text-white font-heading font-bold text-sm">
-                    {getInitials(partner.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="font-heading font-semibold truncate">{partner.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {PARTNER_TYPES[partner.type]}
-                  </p>
-                </div>
-                <Badge variant={partner.status === "active" ? "success" : "secondary"}>
-                  {partner.status === "active" ? "Activo" : "Inactivo"}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div>
-                  <span className="text-muted-foreground">Comissão: </span>
-                  <span className="font-semibold">{partner.commissionPct}%</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Saldo: </span>
-                  <span className="font-semibold text-[#4CC88A]">
-                    {formatCurrency(partner.balance)}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {partners.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Nenhum parceiro encontrado.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {partners.map((partner) => {
+            const status = partner.status as PartnerStatus;
+            const type = partner.type as PartnerType;
+
+            return (
+              <Link key={partner.id} href={`/partners/${partner.id}`}>
+                <Card className="cursor-pointer transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
+                  <CardContent className="pt-6">
+                    <div className="mb-4 flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback className="bg-[#3B82F6] font-heading text-sm font-bold text-white">
+                          {getInitials(partner.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-heading font-semibold">{partner.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {PARTNER_TYPES[type] ?? type}
+                        </p>
+                      </div>
+                      <Badge variant={status === "active" ? "success" : "secondary"}>
+                        {status === "active" ? "Activo" : status === "pending" ? "Pendente" : "Inactivo"}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Comissão: </span>
+                        <span className="font-semibold">
+                          {partner.commission_pct != null ? `${partner.commission_pct}%` : "—"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Saldo: </span>
+                        <span className="font-semibold text-[#4CC88A]">
+                          {formatCurrency(partner.balance)}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
