@@ -36,7 +36,7 @@ export interface RiderDetail extends RiderRow {
  * joined with profile and delivery counts.
  */
 export async function getRiders(): Promise<RiderWithProfile[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("riders")
@@ -58,7 +58,7 @@ export async function getRiders(): Promise<RiderWithProfile[]> {
  * Returns null if not found or not accessible via RLS.
  */
 export async function getRiderById(id: string): Promise<RiderDetail | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Fetch rider + profile
   const { data: rider, error: riderError } = await supabase

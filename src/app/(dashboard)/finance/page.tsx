@@ -92,12 +92,7 @@ export default async function FinancePage() {
         </Card>
       </div>
 
-      <FinanceTabs
-        income={income}
-        expenses={expenses}
-        debts={debts}
-        shareholders={shareholders}
-      />
+      <FinanceTabs income={income} expenses={expenses} debts={debts} shareholders={shareholders} />
     </div>
   );
 }

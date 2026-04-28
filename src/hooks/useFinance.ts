@@ -10,6 +10,29 @@ import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
 type FinancialEntry = Database["public"]["Tables"]["financial_entries"]["Row"];
 type FinancialEntryInsert = Database["public"]["Tables"]["financial_entries"]["Insert"];
 
+const FINANCIAL_ENTRY_COLUMNS = `
+  id,
+  entry_type,
+  category,
+  subcategory,
+  vertical,
+  origin,
+  amount,
+  currency,
+  payment_method,
+  reference_id,
+  reference_type,
+  description,
+  receipt_url,
+  status,
+  created_by,
+  approved_by,
+  approved_at,
+  created_at,
+  updated_at,
+  tenant_id
+`;
+
 interface FinanceFilter {
   entryType?: EntryType;
   status?: EntryStatus;
@@ -28,7 +51,7 @@ export function useFinancialEntries(filter: FinanceFilter = {}) {
     queryFn: async () => {
       let query = supabase
         .from("financial_entries")
-        .select("*", { count: "exact" })
+        .select(FINANCIAL_ENTRY_COLUMNS, { count: "exact" })
         .order("created_at", { ascending: false })
         .range((page - 1) * DEFAULT_PAGE_SIZE, page * DEFAULT_PAGE_SIZE - 1);
 
@@ -53,7 +76,9 @@ export function useFinanceSummary(month?: string) {
     queryFn: async () => {
       const startDate = month ? `${month}-01` : new Date(new Date().setDate(1)).toISOString();
       const endDate = month
-        ? new Date(new Date(startDate).setMonth(new Date(startDate).getMonth() + 1) - 1).toISOString()
+        ? new Date(
+            new Date(startDate).setMonth(new Date(startDate).getMonth() + 1) - 1
+          ).toISOString()
         : new Date().toISOString();
 
       const { data, error } = await supabase

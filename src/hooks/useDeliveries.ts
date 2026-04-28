@@ -10,6 +10,35 @@ import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
 type Delivery = Database["public"]["Tables"]["deliveries"]["Row"];
 type DeliveryInsert = Database["public"]["Tables"]["deliveries"]["Insert"];
 
+const DELIVERY_COLUMNS = `
+  id,
+  order_number,
+  source,
+  vertical,
+  customer_name,
+  customer_phone,
+  delivery_zone,
+  delivery_address,
+  partner_id,
+  rider_id,
+  status,
+  requested_at,
+  assigned_at,
+  departed_at,
+  completed_at,
+  delivery_value,
+  operational_cost,
+  commission,
+  failure_reason,
+  delay_reason,
+  distance_km,
+  notes,
+  created_by,
+  created_at,
+  updated_at,
+  tenant_id
+`;
+
 interface DeliveriesFilter {
   status?: DeliveryStatus;
   riderId?: string;
@@ -26,7 +55,7 @@ export function useDeliveries(filter: DeliveriesFilter = {}) {
     queryFn: async () => {
       let query = supabase
         .from("deliveries")
-        .select("*", { count: "exact" })
+        .select(DELIVERY_COLUMNS, { count: "exact" })
         .order("created_at", { ascending: false })
         .range((page - 1) * DEFAULT_PAGE_SIZE, page * DEFAULT_PAGE_SIZE - 1);
 
@@ -47,7 +76,11 @@ export function useCreateDelivery() {
 
   return useMutation({
     mutationFn: async (delivery: Omit<DeliveryInsert, "tenant_id">) => {
-      const { data, error } = await supabase.from("deliveries").insert(delivery as DeliveryInsert).select().single();
+      const { data, error } = await supabase
+        .from("deliveries")
+        .insert(delivery as DeliveryInsert)
+        .select()
+        .single();
       if (error) throw error;
       return data;
     },

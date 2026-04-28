@@ -2,64 +2,65 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, MapPin, Clock } from "lucide-react";
+import { CheckCircle2, XCircle, MapPin, Clock, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { DeliveryStatus } from "@/types/app.types";
-
-// Placeholder data — will be filtered by rider_id via RLS
-const MY_DELIVERIES = [
-  {
-    id: "1",
-    order_number: "DEL-1047",
-    customer_name: "Maria João",
-    delivery_zone: "Coqueiro",
-    delivery_address: "Rua 5 de Outubro, nº 22",
-    status: "in_route" as DeliveryStatus,
-    delivery_value: 1000,
-  },
-  {
-    id: "2",
-    order_number: "DEL-1048",
-    customer_name: "Abdulai Camará",
-    delivery_zone: "Bandim",
-    delivery_address: "Mercado de Bandim, entrada sul",
-    status: "assigned" as DeliveryStatus,
-    delivery_value: 1250,
-  },
-];
+import { useAuth } from "@/hooks/useAuth";
+import { useCurrentRider, useMyDeliveries, useUpdateMyDeliveryStatus } from "@/hooks/useRider";
 
 export default function MyDeliveriesPage() {
+  const { profile, loading: authLoading } = useAuth();
+  const { data: rider, isLoading: riderLoading } = useCurrentRider(profile?.id);
+  const { data: deliveries = [], isLoading: deliveriesLoading } = useMyDeliveries(rider?.id);
+  const updateStatus = useUpdateMyDeliveryStatus();
+
   async function markComplete(id: string) {
-    // TODO: Update Supabase
+    await updateStatus.mutateAsync({ id, status: "completed" });
     toast.success("Entrega concluída!", { description: `Entrega ${id} marcada como concluída.` });
   }
 
   async function markFailed(id: string) {
-    // TODO: Update Supabase with failure reason
+    await updateStatus.mutateAsync({ id, status: "failed" });
     toast.error("Entrega falhada", { description: `Entrega ${id} marcada como falhada.` });
   }
+
+  const isLoading = authLoading || riderLoading || deliveriesLoading;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-xl font-bold">As minhas entregas</h1>
-        <Badge variant="secondary">{MY_DELIVERIES.length} activas</Badge>
+        <Badge variant="secondary">{deliveries.length} activas</Badge>
       </div>
 
-      {MY_DELIVERIES.length === 0 ? (
+      {isLoading ? (
+        <Card>
+          <CardContent className="py-12 text-center text-sm text-muted-foreground">
+            A carregar entregas...
+          </CardContent>
+        </Card>
+      ) : !rider ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <span className="text-4xl mb-3">📦</span>
-            <p className="font-heading font-semibold">Nenhuma entrega atribuída</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              As tuas entregas vão aparecer aqui
+            <Package className="mb-3 h-10 w-10 text-muted-foreground" />
+            <p className="font-heading font-semibold">Perfil de motoboy não encontrado</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Contacta a operação para associar a tua conta a um motoboy.
             </p>
           </CardContent>
         </Card>
+      ) : deliveries.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <Package className="mb-3 h-10 w-10 text-muted-foreground" />
+            <p className="font-heading font-semibold">Nenhuma entrega atribuída</p>
+            <p className="mt-1 text-sm text-muted-foreground">As tuas entregas vão aparecer aqui</p>
+          </CardContent>
+        </Card>
       ) : (
-        MY_DELIVERIES.map((delivery) => (
+        deliveries.map((delivery) => (
           <Card key={delivery.id} className="overflow-hidden">
             <CardContent className="p-0">
               {/* Header */}
@@ -73,12 +74,15 @@ export default function MyDeliveriesPage() {
               </div>
 
               {/* Content */}
-              <div className="p-4 space-y-3">
+              <div className="space-y-3 p-4">
                 <div>
-                  <p className="font-heading font-semibold text-lg">{delivery.customer_name}</p>
-                  <div className="flex items-center gap-1.5 mt-1 text-sm text-muted-foreground">
+                  <p className="font-heading text-lg font-semibold">{delivery.customer_name}</p>
+                  <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                     <MapPin className="h-4 w-4 text-[#4CC88A]" />
-                    <span>{delivery.delivery_zone} — {delivery.delivery_address}</span>
+                    <span>
+                      {delivery.delivery_zone}
+                      {delivery.delivery_address ? ` - ${delivery.delivery_address}` : ""}
+                    </span>
                   </div>
                 </div>
 
@@ -93,7 +97,8 @@ export default function MyDeliveriesPage() {
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <Button
                     size="lg"
-                    className="h-14 gap-2 text-base bg-[#4CC88A] hover:bg-[#3AAE74]"
+                    className="h-14 gap-2 bg-[#4CC88A] text-base hover:bg-[#3AAE74]"
+                    disabled={updateStatus.isPending}
                     onClick={() => markComplete(delivery.id)}
                   >
                     <CheckCircle2 className="h-5 w-5" />
@@ -102,7 +107,8 @@ export default function MyDeliveriesPage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-14 gap-2 text-base border-red-300 text-red-600 hover:bg-red-50"
+                    className="h-14 gap-2 border-red-300 text-base text-red-600 hover:bg-red-50"
+                    disabled={updateStatus.isPending}
                     onClick={() => markFailed(delivery.id)}
                   >
                     <XCircle className="h-5 w-5" />

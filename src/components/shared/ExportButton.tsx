@@ -14,19 +14,19 @@ import {
 interface ExportButtonProps {
   filename: string;
   getData: () => Promise<Record<string, unknown>[]>;
-  formats?: ("excel" | "csv")[];
+  formats?: "csv"[];
   disabled?: boolean;
 }
 
 export function ExportButton({
   filename,
   getData,
-  formats = ["excel", "csv"],
+  formats = ["csv"],
   disabled = false,
 }: ExportButtonProps) {
   const [exporting, setExporting] = React.useState<string | null>(null);
 
-  async function handleExport(format: "excel" | "csv") {
+  async function handleExport(format: "csv") {
     setExporting(format);
     try {
       const data = await getData();
@@ -36,20 +36,11 @@ export function ExportButton({
         return;
       }
 
-      if (format === "csv") {
-        const headers = Object.keys(data[0]).join(",");
-        const rows = data.map((row) => Object.values(row).join(",")).join("\n");
-        const csv = `${headers}\n${rows}`;
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        downloadBlob(blob, `${filename}.csv`);
-      } else {
-        // Dynamic import to reduce bundle size
-        const XLSX = await import("xlsx");
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Dados");
-        XLSX.writeFile(wb, `${filename}.xlsx`);
-      }
+      const headers = Object.keys(data[0]);
+      const rows = data.map((row) => headers.map((header) => formatCsvCell(row[header])));
+      const csv = [headers.map(formatCsvCell), ...rows].map((row) => row.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      downloadBlob(blob, `${filename}.csv`);
 
       toast.success(`Exportado como ${format.toUpperCase()}!`);
     } catch {
@@ -66,6 +57,13 @@ export function ExportButton({
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  function formatCsvCell(value: unknown) {
+    const text = value == null ? "" : String(value);
+    const safeText = /^[=+\-@]/.test(text) ? `'${text}` : text;
+
+    return `"${safeText.replaceAll('"', '""')}"`;
   }
 
   if (formats.length === 1) {

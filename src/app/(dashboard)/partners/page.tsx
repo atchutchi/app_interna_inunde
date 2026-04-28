@@ -20,7 +20,9 @@ export default async function PartnersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-bold">Parceiros</h1>
-          <p className="text-sm text-muted-foreground">Restaurantes, fornecedores e parceiros B2B</p>
+          <p className="text-sm text-muted-foreground">
+            Restaurantes, fornecedores e parceiros B2B
+          </p>
         </div>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
@@ -53,7 +55,11 @@ export default async function PartnersPage() {
                         </p>
                       </div>
                       <Badge variant={status === "active" ? "success" : "secondary"}>
-                        {status === "active" ? "Activo" : status === "pending" ? "Pendente" : "Inactivo"}
+                        {status === "active"
+                          ? "Activo"
+                          : status === "pending"
+                            ? "Pendente"
+                            : "Inactivo"}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between text-sm">

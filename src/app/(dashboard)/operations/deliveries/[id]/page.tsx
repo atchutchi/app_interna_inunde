@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft, MapPin, Phone, User, Bike,
-  Building2, Calendar, Clock, FileText,
+  ArrowLeft,
+  MapPin,
+  Phone,
+  User,
+  Bike,
+  Building2,
+  Calendar,
+  Clock,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -46,12 +53,10 @@ export default async function DeliveryDetailPage({ params }: PageProps) {
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="font-heading text-2xl font-bold">
-              {delivery.order_number}
-            </h1>
+            <h1 className="font-heading text-2xl font-bold">{delivery.order_number}</h1>
             <DeliveryStatusBadge status={delivery.status as DeliveryStatus} />
           </div>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             {vertical?.label ?? delivery.vertical} · {source}
           </p>
         </div>
@@ -77,21 +82,23 @@ export default async function DeliveryDetailPage({ params }: PageProps) {
           <CardContent className="space-y-3">
             <div>
               <p className="font-semibold">{delivery.customer_name}</p>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
+              <p className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Phone className="h-3 w-3" />
                 {formatPhone(delivery.customer_phone)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Zona</p>
-              <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+              <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">Zona</p>
+              <Badge variant="secondary" className="flex w-fit items-center gap-1">
                 <MapPin className="h-3 w-3" />
                 {delivery.delivery_zone}
               </Badge>
             </div>
             {delivery.delivery_address && (
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Endereço</p>
+                <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                  Endereço
+                </p>
                 <p className="text-sm">{delivery.delivery_address}</p>
               </div>
             )}
@@ -112,7 +119,7 @@ export default async function DeliveryDetailPage({ params }: PageProps) {
                 <div>
                   <p className="font-semibold">{rider.profile?.full_name ?? "—"}</p>
                   {rider.profile?.phone && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <p className="flex items-center gap-1 text-sm text-muted-foreground">
                       <Phone className="h-3 w-3" />
                       {formatPhone(rider.profile.phone)}
                     </p>
@@ -121,13 +128,17 @@ export default async function DeliveryDetailPage({ params }: PageProps) {
                 <div className="flex gap-6">
                   {rider.vehicle_plate && (
                     <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Matrícula</p>
-                      <p className="text-sm font-mono font-semibold">{rider.vehicle_plate}</p>
+                      <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                        Matrícula
+                      </p>
+                      <p className="font-mono text-sm font-semibold">{rider.vehicle_plate}</p>
                     </div>
                   )}
                   {rider.vehicle_brand && (
                     <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Moto</p>
+                      <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                        Moto
+                      </p>
                       <p className="text-sm">{rider.vehicle_brand}</p>
                     </div>
                   )}
@@ -165,25 +176,31 @@ export default async function DeliveryDetailPage({ params }: PageProps) {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Pedido em</p>
+                <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                  Pedido em
+                </p>
                 <p className="text-sm">{formatDateTime(delivery.requested_at)}</p>
               </div>
               {delivery.assigned_at && (
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Atribuído</p>
+                  <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                    Atribuído
+                  </p>
                   <p className="text-sm">{formatDateTime(delivery.assigned_at)}</p>
                 </div>
               )}
               {delivery.departed_at && (
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Saída</p>
+                  <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                    Saída
+                  </p>
                   <p className="text-sm">{formatDateTime(delivery.departed_at)}</p>
                 </div>
               )}
               {delivery.completed_at && (
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                    <Clock className="inline h-3 w-3 mr-1" />
+                  <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                    <Clock className="mr-1 inline h-3 w-3" />
                     Concluído
                   </p>
                   <p className="text-sm">{formatDateTime(delivery.completed_at)}</p>
@@ -192,7 +209,9 @@ export default async function DeliveryDetailPage({ params }: PageProps) {
             </div>
             {delivery.distance_km != null && (
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Distância</p>
+                <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                  Distância
+                </p>
                 <p className="text-sm">{delivery.distance_km} km</p>
               </div>
             )}

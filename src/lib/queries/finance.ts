@@ -16,10 +16,69 @@ export interface FinanceSummary {
   pendingApprovals: number;
 }
 
+const FINANCIAL_ENTRY_COLUMNS = `
+  id,
+  entry_type,
+  category,
+  subcategory,
+  vertical,
+  origin,
+  amount,
+  currency,
+  payment_method,
+  reference_id,
+  reference_type,
+  description,
+  receipt_url,
+  status,
+  created_by,
+  approved_by,
+  approved_at,
+  created_at,
+  updated_at,
+  tenant_id
+`;
+
+const DEBT_COLUMNS = `
+  id,
+  debtor_creditor_name,
+  debtor_type,
+  direction,
+  reason,
+  amount,
+  currency,
+  due_date,
+  status,
+  origin,
+  notes,
+  created_by,
+  created_at,
+  tenant_id
+`;
+
+const SHAREHOLDER_CAPITAL_COLUMNS = `
+  id,
+  shareholder_name,
+  shareholder_role,
+  entry_type,
+  amount,
+  currency,
+  purpose,
+  destination,
+  receipt_url,
+  reimbursable,
+  reimbursement_status,
+  notes,
+  entry_date,
+  created_by,
+  created_at,
+  tenant_id
+`;
+
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
 export async function getFinanceSummary(): Promise<FinanceSummary> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: entries, error } = await supabase
     .from("financial_entries")
@@ -45,11 +104,11 @@ export async function getFinanceSummary(): Promise<FinanceSummary> {
 }
 
 export async function getIncomeEntries(): Promise<FinancialEntry[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("financial_entries")
-    .select("*")
+    .select(FINANCIAL_ENTRY_COLUMNS)
     .eq("entry_type", "income")
     .order("created_at", { ascending: false })
     .limit(100);
@@ -59,11 +118,11 @@ export async function getIncomeEntries(): Promise<FinancialEntry[]> {
 }
 
 export async function getExpenseEntries(): Promise<FinancialEntry[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("financial_entries")
-    .select("*")
+    .select(FINANCIAL_ENTRY_COLUMNS)
     .eq("entry_type", "expense")
     .order("created_at", { ascending: false })
     .limit(100);
@@ -73,11 +132,11 @@ export async function getExpenseEntries(): Promise<FinancialEntry[]> {
 }
 
 export async function getDebts(): Promise<Debt[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("debts")
-    .select("*")
+    .select(DEBT_COLUMNS)
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -86,11 +145,11 @@ export async function getDebts(): Promise<Debt[]> {
 }
 
 export async function getShareholderCapital(): Promise<ShareholderCapital[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("shareholder_capital")
-    .select("*")
+    .select(SHAREHOLDER_CAPITAL_COLUMNS)
     .order("entry_date", { ascending: false })
     .limit(100);
 

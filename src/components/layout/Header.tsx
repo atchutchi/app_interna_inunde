@@ -109,7 +109,7 @@ export function Header({ userFullName, userRole, userAvatarUrl, onCommandOpen }:
             <Button variant="ghost" size="icon" className="relative rounded-full">
               <Avatar className="h-8 w-8">
                 {userAvatarUrl && <AvatarImage src={userAvatarUrl} />}
-                <AvatarFallback className="bg-[#4CC88A] text-white text-xs">
+                <AvatarFallback className="bg-[#4CC88A] text-xs text-white">
                   {getInitials(userFullName)}
                 </AvatarFallback>
               </Avatar>
@@ -118,7 +118,9 @@ export function Header({ userFullName, userRole, userAvatarUrl, onCommandOpen }:
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <p className="font-semibold">{userFullName ?? "—"}</p>
-              <p className="text-xs font-normal text-muted-foreground capitalize">{userRole ?? ""}</p>
+              <p className="text-xs font-normal capitalize text-muted-foreground">
+                {userRole ?? ""}
+              </p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push("/profile")}>

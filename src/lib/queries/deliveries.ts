@@ -22,7 +22,7 @@ export interface DeliveryWithRider extends DeliveryRow {
  * RLS ensures only the correct tenant's data is returned.
  */
 export async function getDeliveries(): Promise<DeliveryWithRider[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("deliveries")
@@ -49,10 +49,8 @@ export async function getDeliveries(): Promise<DeliveryWithRider[]> {
  * Fetch a single delivery by ID with full joins.
  * Returns null if not found or not accessible via RLS.
  */
-export async function getDeliveryById(
-  id: string
-): Promise<DeliveryWithRider | null> {
-  const supabase = createClient();
+export async function getDeliveryById(id: string): Promise<DeliveryWithRider | null> {
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("deliveries")

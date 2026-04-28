@@ -43,8 +43,8 @@ export function DeliveryTable({ deliveries }: DeliveryTableProps) {
   return (
     <Card>
       {/* Toolbar */}
-      <div className="flex items-center gap-3 p-4 border-b">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex items-center gap-3 border-b p-4">
+        <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Pesquisar por número, cliente ou zona..."
@@ -75,7 +75,7 @@ export function DeliveryTable({ deliveries }: DeliveryTableProps) {
         <TableBody>
           {filtered.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                 Nenhuma entrega encontrada
               </TableCell>
             </TableRow>
@@ -83,7 +83,7 @@ export function DeliveryTable({ deliveries }: DeliveryTableProps) {
             filtered.map((delivery) => (
               <TableRow
                 key={delivery.id}
-                className="cursor-pointer hover:bg-muted/50 transition-colors duration-100"
+                className="cursor-pointer transition-colors duration-100 hover:bg-muted/50"
                 onClick={() => router.push(`/operations/deliveries/${delivery.id}`)}
               >
                 <TableCell className="font-mono text-sm font-semibold">
@@ -92,7 +92,7 @@ export function DeliveryTable({ deliveries }: DeliveryTableProps) {
                 <TableCell>
                   <div>
                     <p className="font-medium">{delivery.customer_name}</p>
-                    <p className="text-xs text-muted-foreground hidden sm:block">
+                    <p className="hidden text-xs text-muted-foreground sm:block">
                       {formatPhone(delivery.customer_phone)}
                     </p>
                   </div>
@@ -101,18 +101,20 @@ export function DeliveryTable({ deliveries }: DeliveryTableProps) {
                   <Badge variant="secondary">{delivery.delivery_zone}</Badge>
                 </TableCell>
                 <TableCell>
-                  <DeliveryStatusBadge status={delivery.status as Parameters<typeof DeliveryStatusBadge>[0]["status"]} />
+                  <DeliveryStatusBadge
+                    status={delivery.status as Parameters<typeof DeliveryStatusBadge>[0]["status"]}
+                  />
                 </TableCell>
-                <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
                   {DELIVERY_SOURCES[delivery.source as DeliverySource] ?? delivery.source}
                 </TableCell>
-                <TableCell className="hidden lg:table-cell text-sm">
+                <TableCell className="hidden text-sm lg:table-cell">
                   {getRiderName(delivery)}
                 </TableCell>
-                <TableCell className="text-right font-semibold text-sm">
+                <TableCell className="text-right text-sm font-semibold">
                   {formatCurrency(delivery.delivery_value)}
                 </TableCell>
-                <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
+                <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                   {formatDate(delivery.requested_at)}
                 </TableCell>
               </TableRow>

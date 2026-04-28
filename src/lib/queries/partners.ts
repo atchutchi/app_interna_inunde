@@ -9,6 +9,23 @@ export type PartnerWithStats = PartnerRow & {
   total_deliveries: number;
 };
 
+const PARTNER_COLUMNS = `
+  id,
+  name,
+  type,
+  contact_name,
+  phone,
+  email,
+  zone,
+  commission_pct,
+  commission_type,
+  status,
+  balance,
+  notes,
+  created_at,
+  tenant_id
+`;
+
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
 /**
@@ -16,11 +33,11 @@ export type PartnerWithStats = PartnerRow & {
  * RLS ensures only the correct tenant's data is returned.
  */
 export async function getPartners(): Promise<PartnerRow[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("partners")
-    .select("*")
+    .select(PARTNER_COLUMNS)
     .order("name", { ascending: true });
 
   if (error) {
@@ -35,11 +52,11 @@ export async function getPartners(): Promise<PartnerRow[]> {
  * Returns null if not found or not accessible via RLS.
  */
 export async function getPartnerById(id: string): Promise<PartnerWithStats | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: partner, error: partnerError } = await supabase
     .from("partners")
-    .select("*")
+    .select(PARTNER_COLUMNS)
     .eq("id", id)
     .single();
 

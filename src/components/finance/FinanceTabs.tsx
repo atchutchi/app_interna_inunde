@@ -178,7 +178,9 @@ export function FinanceTabs({ income, expenses, debts, shareholders }: Props) {
                         {debt.reason}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={debt.direction === "receivable" ? "success" : "destructive"}>
+                        <Badge
+                          variant={debt.direction === "receivable" ? "success" : "destructive"}
+                        >
                           {debt.direction === "receivable" ? "A receber" : "A pagar"}
                         </Badge>
                       </TableCell>

@@ -39,9 +39,7 @@ export default async function RidersPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {riders.map((rider) => {
             const name = rider.profile?.full_name ?? "—";
-            const vehicle = [rider.vehicle_brand, rider.vehicle_type]
-              .filter(Boolean)
-              .join(" ");
+            const vehicle = [rider.vehicle_brand, rider.vehicle_type].filter(Boolean).join(" ");
             const status = rider.status as RiderStatus;
 
             return (
@@ -54,7 +52,7 @@ export default async function RidersPage() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <p className="font-heading font-semibold truncate">{name}</p>
+                      <p className="truncate font-heading font-semibold">{name}</p>
                       <p className="text-xs text-muted-foreground">{vehicle || "—"}</p>
                     </div>
                     <Badge variant={status === "active" ? "success" : "secondary"}>

@@ -19,7 +19,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default async function ProfilePage() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },
@@ -55,7 +55,10 @@ export default async function ProfilePage() {
             <div>
               <p className="font-heading text-xl font-bold">{name}</p>
               <p className="text-sm text-muted-foreground">{user.email}</p>
-              <Badge variant={profile?.status === "active" ? "success" : "secondary"} className="mt-2">
+              <Badge
+                variant={profile?.status === "active" ? "success" : "secondary"}
+                className="mt-2"
+              >
                 {profile?.status === "active" ? "Activo" : "Inactivo"}
               </Badge>
             </div>
@@ -73,7 +76,9 @@ export default async function ProfilePage() {
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">Nome completo</p>
+            <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+              Nome completo
+            </p>
             <p className="font-medium">{name}</p>
           </div>
           <div>

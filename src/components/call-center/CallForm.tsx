@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -10,15 +10,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DELIVERY_ZONES, CALL_OUTCOME_OPTIONS } from "@/lib/constants";
+import { registerCall } from "@/app/(dashboard)/call-center/actions";
 
 const callSchema = z.object({
   customer_phone: z.string().min(7, "Telefone obrigatório"),
   customer_name: z.string().optional(),
   zone: z.string().optional(),
   order_type: z.string().optional(),
-  rider_id: z.string().optional(),
   outcome: z.enum(["converted", "failed", "info", "complaint", "no_answer"]),
   notes: z.string().optional(),
 });
@@ -28,9 +34,9 @@ type CallFormData = z.infer<typeof callSchema>;
 export function CallForm() {
   const {
     register,
+    control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CallFormData>({
@@ -38,11 +44,16 @@ export function CallForm() {
     defaultValues: { outcome: "converted" },
   });
 
-  const outcome = watch("outcome");
+  const outcome = useWatch({ control, name: "outcome" });
 
   async function onSubmit(data: CallFormData) {
-    // TODO: Insert to Supabase calls table
-    await new Promise((r) => setTimeout(r, 500)); // Simulate API call
+    const result = await registerCall(data);
+
+    if (result.error) {
+      toast.error("Erro ao registar chamada", { description: result.error });
+      return;
+    }
+
     toast.success("Chamada registada!", {
       description:
         data.outcome === "converted"
@@ -63,7 +74,7 @@ export function CallForm() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            {/* Phone — most critical field */}
+            {/* Phone */}
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="customer_phone">
                 Telefone do cliente <span className="text-destructive">*</span>
@@ -73,7 +84,7 @@ export function CallForm() {
                 type="tel"
                 placeholder="+245 966 000 000"
                 autoFocus
-                className="text-lg h-11"
+                className="h-11 text-lg"
                 {...register("customer_phone")}
               />
               {errors.customer_phone && (
@@ -107,7 +118,11 @@ export function CallForm() {
             {/* Order type */}
             <div className="space-y-2">
               <Label htmlFor="order_type">Tipo de pedido</Label>
-              <Input id="order_type" placeholder="Ex: iComida, iEntrega" {...register("order_type")} />
+              <Input
+                id="order_type"
+                placeholder="Ex: iComida, iEntrega"
+                {...register("order_type")}
+              />
             </div>
 
             {/* Outcome */}
@@ -143,8 +158,7 @@ export function CallForm() {
             <Button type="submit" disabled={isSubmitting} className="flex-1 sm:flex-none">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="animate-spin" />
-                  A registar...
+                  <Loader2 className="animate-spin" />A registar...
                 </>
               ) : (
                 <>
@@ -155,7 +169,7 @@ export function CallForm() {
             </Button>
 
             {outcome === "converted" && (
-              <Button type="button" variant="outline" className="text-[#4CC88A] border-[#4CC88A]">
+              <Button type="button" variant="outline" className="border-[#4CC88A] text-[#4CC88A]">
                 + Criar Entrega
               </Button>
             )}
