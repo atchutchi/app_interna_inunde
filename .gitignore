@@ -22,6 +22,7 @@ build
 # Internal docs — NEVER commit
 *.md
 !README.md
+.claude/
 
 # Scripts — local only
 scripts/
